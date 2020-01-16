@@ -1,0 +1,85 @@
+import 'dart:wasm';
+
+import 'package:flutter/material.dart';
+import '../screen/video_list_screen.dart';
+import '../screen/video_recorder_screen.dart';
+import 'dart:async';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
+class HomeScreen extends StatelessWidget {
+  static const routeName="/home-screen";
+  Widget screenSelectorBtn(BuildContext context,IconData icon){
+    final MediaQueryData mq=MediaQuery.of(context);
+    return GestureDetector(
+      onTap: (){
+        if(icon==Icons.videocam){
+           Navigator.of(context).pushNamed(VideoRecorderScreen.routeName);
+        }
+        else{
+          getFileList(context);
+        }    
+            },
+      child: Center(
+        child: Container(
+          height: mq.size.height*.35,
+          width: mq.size.width*.8,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: Theme.of(context).primaryColor,
+            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Icon(icon,
+                size: 200,
+                color: Colors.white,
+              ),
+              Text(icon==Icons.videocam ? "Video Recorder":"Video Player",
+                style: TextStyle(
+                  fontSize:30,
+                  color: Colors.white
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Future<Void> getFileList(BuildContext context) async{
+   try{
+    final Directory appDirectory = await getExternalStorageDirectory();
+    final String videoDirectory = '${appDirectory.path}/Videos';
+    Directory dir = Directory(videoDirectory);
+    List<String> videosPath=[];
+      dir.list(recursive: false).forEach((f) {
+        videosPath.add(f.path);
+      });
+    Navigator.of(context).pushNamed(VideosListScreen.routeName,arguments: videosPath);
+    } on Exception catch (e) {
+        print(e);
+        return null;
+      }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Geo Tagged Video"),
+      ),
+      body:Container(
+        child:Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            screenSelectorBtn(context, Icons.videocam),
+            screenSelectorBtn(context, Icons.music_video),
+          ],
+        )
+      )
+    );
+  }
+}
