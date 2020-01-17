@@ -21,39 +21,34 @@ void write_metadata(String path, String fileName, String tmpVid, String data){
 
   }
 
-void extract_metadata(String path, String fileName, String tagName){
-
-  _flutterFFmpeg.execute("-i "+path+"/"+fileName+" -f ffmetadata "+path+"/tmp_meta.txt").then((rc) { 
+Future<Map> extract_metadata(String path, String fileName, String tagName) async {
+  
+  var coordDict={};
+  var blah = await _flutterFFmpeg.execute("-i "+path+"/"+fileName+" -f ffmetadata "+path+"/tmp_meta.txt").then((rc) { 
   print("FFmpeg process exited with rc $rc");
 
   //extract information for tagName and delete tmp_meta.txt
   File file = new File(path+"/tmp_meta.txt");
 
-  var coordDict={};
-
   List<String> lines = file.readAsLinesSync();
   delete(path, "tmp_meta.txt");
 
   lines.forEach((l){
-
     if(l.contains(tagName)){
-
       if(tagName=="geo_location"){
         String subStr= l.substring(l.indexOf("=")+1);
         var coords= subStr.split(" ");
-
+        
         coords.forEach((item){
           var tmp = item.split(",");
           coordDict[tmp[0]]= tmp.sublist(1);
         });
-        //return coord_dict;
       }
     }
-    //return coord_dict;
-  });
-  print("here... "+coordDict.toString());
-  });
 
+    });
+  });
+  return coordDict;
   }
 
 void rename(String path, String oldName, String newName){
