@@ -60,3 +60,40 @@ void delete(String path, String fileName){
   //deletes a file named 'fileName' from path location
   FileUtils.rm([path+"/"+fileName]);
 }
+
+void _write(String text, String path) async {
+  final File file = File(path);
+  await file.writeAsString(text);
+}
+
+void create_kml(Map data, String path) {
+
+  String kml_start = """
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+  """;
+  String kml_end = """
+    </Document>
+  </kml>
+  """;
+  String inner_data="";
+
+  data.forEach((key, val){
+    inner_data+="""
+  <Placemark>
+        <name>$key</name>
+        <description>Position at $key</description>
+        <TimeStamp>$key</TimeStamp>
+        <Point>
+          <coordinates>${val[1]},${val[0]}</coordinates>
+        </Point>
+      </Placemark>
+    """;
+  });
+
+  String kml_data= kml_start+inner_data+kml_end;
+
+  _write(kml_data, path);
+
+}
