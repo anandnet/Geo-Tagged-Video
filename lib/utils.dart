@@ -1,46 +1,48 @@
-
+import 'dart:async';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart' show FlutterFFmpeg;
 import 'package:file_utils/file_utils.dart';
 import 'dart:io';
 
-final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
 
-void write_metadata(String path, String fileName, String tmpVid, String data){
+///Video encoding-decoding ............................
+
+final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
+void write_metadata(String path, String fileName, String tmpVidPath,String tmpVidName, String data){
+    print("Called:: filepath: $path \n FileName: $fileName \n tmpVid: $tmpVidPath \n  data:$data ");
     // data should be single quoted string consisting of coordinates in below shown manner
     // comma separated-space separated
     // time1,lat1,long1,head1 time2,lat2,long2,head2 time3,lat3,long3,head3 etc.
-    _flutterFFmpeg.execute("-i "+path+"/"+fileName+" -movflags use_metadata_tags -metadata geo_location="+data+" -y -r 1 -acodec copy -vcodec copy "+path+"/"+tmpVid).then((rc){
+    _flutterFFmpeg.execute("-i "+path+" -movflags use_metadata_tags -metadata geo_location=\'"+data+"\' -y -r 1 -acodec copy -vcodec copy "+tmpVidPath).then((rc){
       print("FFmpeg process exited with rc $rc");
 
       //delete old file
-      delete(path, fileName);
+      delete(path);
 
       //rename new file to the old file
-      rename(path, tmpVid, fileName);
+      rename(tmpVidPath, path);
       });
 
   }
 
-Future<Map> extract_metadata(String path, String fileName, String tagName) async {
-  
-  var coordDict={};
-  var blah = await _flutterFFmpeg.execute("-i "+path+"/"+fileName+" -f ffmetadata "+path+"/tmp_meta.txt").then((rc) { 
+Future<Map> extract_metadata(String videoPath, String tmpDir, String tagName) async {
+  Map<String,List<String>> coordDict={};
+  var blah = await _flutterFFmpeg.execute("-i "+videoPath+" -f ffmetadata "+tmpDir+"/tmp_meta.txt").then((rc) { 
   print("FFmpeg process exited with rc $rc");
 
   //extract information for tagName and delete tmp_meta.txt
-  File file = new File(path+"/tmp_meta.txt");
+  File file = new File(tmpDir+"/tmp_meta.txt");
 
   List<String> lines = file.readAsLinesSync();
-  delete(path, "tmp_meta.txt");
+  delete(tmpDir+"/tmp_meta.txt");
 
   lines.forEach((l){
     if(l.contains(tagName)){
       if(tagName=="geo_location"){
         String subStr= l.substring(l.indexOf("=")+1);
-        var coords= subStr.split(" ");
+        List<String> coords= subStr.split(" ");
         
         coords.forEach((item){
-          var tmp = item.split(",");
+          List<String> tmp = item.split(",");
           coordDict[tmp[0]]= tmp.sublist(1);
         });
       }
@@ -51,20 +53,18 @@ Future<Map> extract_metadata(String path, String fileName, String tagName) async
   return coordDict;
   }
 
-void rename(String path, String oldName, String newName){
+void rename(String oldPath, String newPath){
   //renames a file with 'newName' to 'oldName' in the path location
-  FileUtils.rename(path+"/"+oldName, path+"/"+newName);
+  FileUtils.rename(oldPath, newPath);
 }
 
-void delete(String path, String fileName){
+void delete(String fileName){
   //deletes a file named 'fileName' from path location
-  FileUtils.rm([path+"/"+fileName]);
+  FileUtils.rm([fileName]);
 }
 
-void _write(String text, String path) async {
-  final File file = File(path);
-  await file.writeAsString(text);
-}
+
+///kml data creater ........................
 
 void create_kml(Map data, String path) {
 
@@ -96,4 +96,23 @@ void create_kml(Map data, String path) {
 
   _write(kml_data, path);
 
+}void _write(String text, String path) async {
+  final File file = File(path);
+  await file.writeAsString(text);
 }
+
+//General utils..............................
+
+startWatch(timer,watch,updateTime) {
+    watch.start();
+    timer = new Timer.periodic(new Duration(milliseconds: 900), updateTime);
+  }
+
+  transformMilliSeconds(int milliseconds) {
+    int hundreds = (milliseconds / 10).truncate();
+    int seconds = (hundreds / 100).truncate();
+    int minutes = (seconds / 60).truncate();
+    String minutesStr = (minutes % 60).toString().padLeft(2, '0');
+    String secondsStr = (seconds % 60).toString().padLeft(2, '0');
+    return "$minutesStr:$secondsStr";
+  }
