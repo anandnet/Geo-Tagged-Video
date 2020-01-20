@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import './screen/video_recorder_screen.dart';
-import './screen/video_player_screen.dart';
-import './screen/home_screen.dart';
-import './screen/video_list_screen.dart';
+import './screens/video_recorder_screen.dart';
+import './screens/video_player_screen.dart';
+import './screens/home_screen.dart';
+import './screens/video_list_screen.dart';
 import 'package:camera/camera.dart';
 
 
