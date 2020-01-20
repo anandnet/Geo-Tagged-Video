@@ -33,6 +33,7 @@ dependencies:
   location: ^2.3.5
   provider: ^4.0.2
   file_utils: ^0.1.4
+  encrypt: ^4.0.0
 
 
 

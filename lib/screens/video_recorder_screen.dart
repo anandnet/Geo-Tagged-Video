@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import "package:fluttertoast/fluttertoast.dart";
 import 'package:geolocator/geolocator.dart';
-import '../utils.dart' as utils;
+import '../utils/utils.dart' as utils;
 
 class VideoRecorderScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -205,7 +205,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
         Fluttertoast.showToast(
             msg: 'Recording video started',
             toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
+            gravity: ToastGravity.BOTTOM,
             timeInSecForIos: 1,
             backgroundColor: Colors.grey,
             textColor: Colors.white);
@@ -219,9 +219,9 @@ String tmpVideoPath="";
       utils.write_metadata(videoPath, filename, tmpVideoPath,"tmp_"+filename, videoLog);
       if (mounted) setState(() {});
       Fluttertoast.showToast(
-          msg: 'Video recorded to $videoPath',
+          msg: 'Video saved to $videoPath',
           toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+          gravity: ToastGravity.BOTTOM,
           timeInSecForIos: 1,
           backgroundColor: Colors.grey,
           textColor: Colors.white);
@@ -303,12 +303,9 @@ String tmpVideoPath="";
     File file = new File(mapDataFilePath);
     file.createSync();
     file.writeAsStringSync(json.encode(_mapData));
-    //Map<String, Position> jsonFileContent = json.decode(file.readAsStringSync());
-    //print(jsonFileContent.toString());
   }
 
   updateTime(Timer timer) {
-    //print(timer.isActive);
     if (watch.isRunning) {
       if (mounted) {
         setState(() {
