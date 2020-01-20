@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'dart:async';
 import "package:google_maps_flutter/google_maps_flutter.dart";
 import "package:flutter_polyline_points/flutter_polyline_points.dart";
-import "../utils.dart" as utils;
+import "../utils/utils.dart" as utils;
 import "../screens/video_list_screen.dart";
 
 
@@ -25,7 +25,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void initState() {
     print("init_state called");
     super.initState();
-    utils.startWatch(timer,watch,updateTime);
+    //utils.startWatch(timer,watch,updateTime);
     setSourceAndDestinationIcons();
   }
 
@@ -132,9 +132,9 @@ updateTime(Timer timer) {
   if (watch.isRunning) {
     if (mounted) {
       setState(() {
-        elapsedTime = utils.transformMilliSeconds(watch.elapsedMilliseconds);
+        //elapsedTime = utils.transformMilliSeconds(watch.elapsedMilliseconds);
         var milliSeconds=_chewieController.videoPlayerController.value.position.inMilliseconds;
-        videoPosition=utils.transformMilliSeconds(milliSeconds);
+        //videoPosition=utils.transformMilliSeconds(milliSeconds);
         print(videoPosition);
         updatePinOnMap();
       });
