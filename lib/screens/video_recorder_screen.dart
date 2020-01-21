@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import "package:fluttertoast/fluttertoast.dart";
 import 'package:geolocator/geolocator.dart';
 import '../utils/utils.dart' as utils;
+import "../utils/global_variables.dart" as gv;
 
 class VideoRecorderScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -246,19 +246,14 @@ String tmpVideoPath="";
     if (controller.value.isRecordingVideo) {
       return null;
     }
-
-    final Directory appDirectory = await getExternalStorageDirectory();
-    final String videoDirectory = '${appDirectory.path}/Videos';
-    final String mapDataDirectory = '${appDirectory.path}/mapDataDirectory';
-    await Directory(videoDirectory).create(recursive: true);
-    await Directory(mapDataDirectory).create(recursive: true);
+    
     final String currentTime = DateTime.now().millisecondsSinceEpoch.toString();
-    final String mapDFilePath = "$mapDataDirectory/$currentTime.json";
-    final String filePath = '$videoDirectory/$currentTime.mp4';
+    final String mapDFilePath = "${gv.mapDataDirectory}/$currentTime.json";
+    final String filePath = '${gv.videoDirectory}/$currentTime.mp4';
 
     try {
       await controller.startVideoRecording(filePath);
-      tmpVideoPath=  '$videoDirectory/tmp_$currentTime.mp4';
+      tmpVideoPath=  '${gv.videoDirectory}/tmp_$currentTime.mp4';
       videoPath = filePath;
       mapDataFilePath = mapDFilePath;
       filename="$currentTime.mp4";

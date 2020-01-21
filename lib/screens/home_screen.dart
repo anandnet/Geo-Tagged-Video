@@ -1,11 +1,8 @@
-import 'dart:wasm';
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import '../screens/video_list_screen.dart';
 import '../screens/video_recorder_screen.dart';
-
+import "../utils/global_variables.dart" as gv;
 class HomeScreen extends StatelessWidget {
   static const routeName="/home-screen";
 
@@ -68,11 +65,9 @@ Widget screenSelectorBtn(BuildContext context,IconData icon){
   }
 
 ///Get file list from videos directory
-  Future<Void> getFileList(BuildContext context) async{
+  getFileList(BuildContext context) async{
   try{
-  final Directory appDirectory = await getExternalStorageDirectory();
-  final String videoDirectory = '${appDirectory.path}/Videos';
-  Directory dir = Directory(videoDirectory);
+  Directory dir = Directory(gv.videoDirectory);
   List<String> videosPath=[];
     dir.list(recursive: false).forEach((f) {
       videosPath.add(f.path);
