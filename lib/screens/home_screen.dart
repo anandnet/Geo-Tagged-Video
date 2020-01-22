@@ -63,22 +63,15 @@ Widget screenSelectorBtn(BuildContext context,IconData icon){
       ),
     );
   }
-
-///Get file list from videos directory
-  getFileList(BuildContext context) async{
-  try{
-  Directory dir = Directory(gv.videoDirectory);
-  List<String> videosPath=[];
-    dir.list(recursive: false).forEach((f) {
-      videosPath.add(f.path);
-    });
-  Navigator.of(context).pushNamed(VideosListScreen.routeName,arguments: videosPath);
-  } on Exception catch (e) {
-      print(e);
-      return null;
+  void getFileList(BuildContext context)async{
+    List<String> videosList=[];
+    try{
+    List<FileSystemEntity> list = Directory(gv.videoDirectory).listSync();
+    list.forEach((file){videosList.add(file.path);});
+    Navigator.of(context).pushNamed(VideosListScreen.routeName,arguments: videosList);
     }
-}
-
-
-
+    catch (e){
+      Navigator.of(context).pushNamed(VideosListScreen.routeName,arguments: videosList);
+    }
+  }
 }

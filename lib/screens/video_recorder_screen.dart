@@ -7,6 +7,7 @@ import "package:fluttertoast/fluttertoast.dart";
 import 'package:geolocator/geolocator.dart';
 import '../utils/utils.dart' as utils;
 import "../utils/global_variables.dart" as gv;
+import "package:location/location.dart" as loc;
 
 class VideoRecorderScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -28,6 +29,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   Timer timer;
 
   var geolocator = Geolocator();
+  var location=loc.Location();
   Position currentLocation;
   String elapsedTime = '';
 
@@ -36,6 +38,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     super.initState();
     controller = CameraController(widget.cameras[0], ResolutionPreset.medium);
     controller.initialize().then((_) {
+      location.requestService();
       updateLocation();
       if (!mounted) {
         return;
@@ -48,7 +51,6 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     var locationOptions =
         LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 0);
     geolocator.getPositionStream(locationOptions).listen((Position position) {
-      //print(position == null ? 'Unknown' : position.latitude.toString() + ', ' + position.longitude.toString());
       currentLocation = position;
     });
   }
@@ -98,6 +100,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                       onTap: () {
                         setState(() {
                           if (recording) {
+
                             _onStopButtonPressed();
                             stopWatch();
                             reSetWatch();
@@ -246,7 +249,7 @@ String tmpVideoPath="";
     if (controller.value.isRecordingVideo) {
       return null;
     }
-    
+
     final String currentTime = DateTime.now().millisecondsSinceEpoch.toString();
     final String mapDFilePath = "${gv.mapDataDirectory}/$currentTime.json";
     final String filePath = '${gv.videoDirectory}/$currentTime.mp4';

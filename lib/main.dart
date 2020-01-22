@@ -4,7 +4,7 @@ import './screens/video_player_screen.dart';
 import './screens/home_screen.dart';
 import './screens/video_list_screen.dart';
 import './utils/global_variables.dart' as gv;
-
+import './screens/splash_screen.dart';
 
 void main(){
   runApp(MyApp());}
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
-      home: HomeScreen(),
+      home: SplashScreen(),
       routes: {
         HomeScreen.routeName:(context)=>HomeScreen(),
         VideoPlayerScreen.routeName:(context)=>VideoPlayerScreen(),

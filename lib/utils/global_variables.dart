@@ -23,9 +23,11 @@ String videoDirectory ;
 String mapDataDirectory ;
 String tmpDirectory;
 List<CameraDescription> cameras;
+String temporaryDirectory;
 
 onAppStart()async{
 appDirectory = await getExternalStorageDirectory();
+temporaryDirectory=(await getTemporaryDirectory()).path;
 videoDirectory = '${appDirectory.path}/Videos';
 mapDataDirectory = '${appDirectory.path}/mapDataDirectory';
 tmpDirectory = '${appDirectory.path}/tmp';

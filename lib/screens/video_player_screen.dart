@@ -56,7 +56,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         ),
         // autoInitialize: true,
       );
-      // TODO: implement didChangeDependencies
       isInit=false;
       }
     super.didChangeDependencies();
