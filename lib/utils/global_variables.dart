@@ -24,6 +24,8 @@ String mapDataDirectory ;
 String tmpDirectory;
 List<CameraDescription> cameras;
 String temporaryDirectory;
+String metaDataDirectory;
+String kmlDataDirectory;
 
 onAppStart()async{
 appDirectory = await getExternalStorageDirectory();
@@ -31,8 +33,12 @@ temporaryDirectory=(await getTemporaryDirectory()).path;
 videoDirectory = '${appDirectory.path}/Videos';
 mapDataDirectory = '${appDirectory.path}/mapDataDirectory';
 tmpDirectory = '${appDirectory.path}/tmp';
+metaDataDirectory="$temporaryDirectory/metadata";
+kmlDataDirectory="${appDirectory.path}/KML Data";
 cameras = await availableCameras();
 await Directory(videoDirectory).create(recursive: true);
 await Directory(mapDataDirectory).create(recursive: true);
 await Directory(tmpDirectory).create(recursive: true);
+await Directory(metaDataDirectory).create(recursive: true);
+await Directory(kmlDataDirectory).create(recursive: true);
 }

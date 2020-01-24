@@ -36,6 +36,8 @@ dependencies:
   encrypt: ^4.0.0
   video_thumbnail: ^0.2.0
   location_permissions: ^2.0.4+1
+  flutter_compass: ^0.3.4
+  esys_flutter_share: ^1.0.2
 
 
 

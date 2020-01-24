@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import '../utils/utils.dart' as utils;
 import "../utils/global_variables.dart" as gv;
 import "package:location/location.dart" as loc;
+import "package:flutter_compass/flutter_compass.dart";
 
 class VideoRecorderScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -29,9 +30,10 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   Timer timer;
 
   var geolocator = Geolocator();
-  var location=loc.Location();
+  var location = loc.Location();
   Position currentLocation;
   String elapsedTime = '';
+  double _direction;
 
   @override
   void initState() {
@@ -39,7 +41,12 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     controller = CameraController(widget.cameras[0], ResolutionPreset.medium);
     controller.initialize().then((_) {
       location.requestService();
+      FlutterCompass.events.listen((double direction) {
+        setState(() {
+          _direction = direction;
+        });
       updateLocation();
+      });
       if (!mounted) {
         return;
       }
@@ -100,7 +107,6 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                       onTap: () {
                         setState(() {
                           if (recording) {
-
                             _onStopButtonPressed();
                             stopWatch();
                             reSetWatch();
@@ -149,7 +155,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     );
   }
 
-///Camera Part......
+  ///Camera Part......
   int selectedCameraIdx;
   String videoPath;
   String mapDataFilePath;
@@ -215,11 +221,13 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       }
     });
   }
-String filename="";
-String tmpVideoPath="";
+
+  String filename = "";
+  String tmpVideoPath = "";
   void _onStopButtonPressed() {
     _stopVideoRecording().then((_) {
-      utils.write_metadata(videoPath, filename, tmpVideoPath,"tmp_"+filename, videoLog);
+      utils.write_metadata(
+          videoPath, filename, tmpVideoPath, "tmp_" + filename, videoLog);
       if (mounted) setState(() {});
       Fluttertoast.showToast(
           msg: 'Video saved to $videoPath',
@@ -231,7 +239,6 @@ String tmpVideoPath="";
     });
   }
 
-  
   Future<String> _startVideoRecording() async {
     if (!controller.value.isInitialized) {
       Fluttertoast.showToast(
@@ -256,10 +263,10 @@ String tmpVideoPath="";
 
     try {
       await controller.startVideoRecording(filePath);
-      tmpVideoPath=  '${gv.videoDirectory}/tmp_$currentTime.mp4';
+      tmpVideoPath = '${gv.videoDirectory}/tmp_$currentTime.mp4';
       videoPath = filePath;
       mapDataFilePath = mapDFilePath;
-      filename="$currentTime.mp4";
+      filename = "$currentTime.mp4";
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;
@@ -295,7 +302,7 @@ String tmpVideoPath="";
   }
 
   Map<String, List> _mapData = {};
-  String videoLog='';
+  String videoLog = '';
 
   void saveJSONFile() {
     File file = new File(mapDataFilePath);
@@ -308,19 +315,36 @@ String tmpVideoPath="";
       if (mounted) {
         setState(() {
           elapsedTime = transformMilliSeconds(watch.elapsedMilliseconds);
-          if(currentLocation!=null){
-          videoLog+="$elapsedTime,${currentLocation.latitude},${currentLocation.longitude},${currentLocation.heading} ";
-          
-          _mapData[elapsedTime] = [
-            currentLocation.latitude,
-            currentLocation.longitude,
-            currentLocation.altitude,
-            currentLocation.heading
-          ];
+          if (currentLocation != null) {
+            if (_direction == null) {
+              //print("Chetan's Phone!!!!");
+              videoLog +=
+                  "$elapsedTime,${currentLocation.latitude},${currentLocation.longitude},${currentLocation.heading} ";
+
+              _mapData[elapsedTime] = [
+                currentLocation.latitude,
+                currentLocation.longitude,
+                currentLocation.altitude,
+                currentLocation.heading
+              ];
+            }
+            else{
+              //print("MyPhone");
+              videoLog +=
+                  "$elapsedTime,${currentLocation.latitude},${currentLocation.longitude},$_direction ";
+
+              _mapData[elapsedTime] = [
+                currentLocation.latitude,
+                currentLocation.longitude,
+                currentLocation.altitude,
+                _direction
+              ];
+
+            }
           }
           Fluttertoast.showToast(
               msg:
-                  'Heading: ${currentLocation.heading},Logitute: ${currentLocation.longitude},',
+                  'Heading: ${currentLocation.heading}Compass:$_direction,Logitute: ${currentLocation.longitude},',
               toastLength: Toast.LENGTH_LONG,
               gravity: ToastGravity.CENTER,
               timeInSecForIos: 1,

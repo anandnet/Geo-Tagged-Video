@@ -3,6 +3,7 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart' show FlutterFFmpeg;
 import 'package:encrypt/encrypt.dart';
 import 'package:file_utils/file_utils.dart';
 import 'dart:io';
+import "global_variables.dart" as gv;
 
 
 ///Video encoding-decoding ............................
@@ -27,16 +28,27 @@ void write_metadata(String path, String fileName, String tmpVidPath,String tmpVi
 
   }
 
-Future<Map> extract_metadata(String videoPath, String tmpDir, String tagName) async {
+Future<Map> extract_metadata(String videoPath, String tmpDir,String fileName ,String tagName) async {
+   bool isExist = FileSystemEntity.typeSync(tmpDir + "/$fileName.txt") !=FileSystemEntityType.notFound;
   Map<String,List<String>> coordDict={};
-  var blah = await _flutterFFmpeg.execute("-i "+videoPath+" -f ffmetadata "+tmpDir+"/tmp_meta.txt").then((rc) { 
+  if (isExist){
+    return getTextToMap(tmpDir + "/$fileName.txt", tagName);
+  }
+  await _flutterFFmpeg.execute("-i "+videoPath+" -f ffmetadata "+tmpDir+"/$fileName.txt").then((rc) { 
   print("FFmpeg process exited with rc $rc");
 
-  //extract information for tagName and delete tmp_meta.txt
-  File file = new File(tmpDir+"/tmp_meta.txt");
+    coordDict=getTextToMap(tmpDir + "/$fileName.txt", tagName);
+  });
+  return coordDict;
+  }
+
+  Map getTextToMap(String path,String tagName){
+    Map<String,List<String>> coordDict={};
+    //extract information for tagName and delete tmp_meta.txt
+  final File file = new File(path);
 
   List<String> lines = file.readAsLinesSync();
-  file.delete();
+  //file.delete();
   //delete(tmpDir+"/tmp_meta.txt");
 
   lines.forEach((l){
@@ -56,8 +68,7 @@ Future<Map> extract_metadata(String videoPath, String tmpDir, String tagName) as
     }
 
     });
-  });
-  return coordDict;
+    return coordDict;
   }
 
 void rename(String oldPath, String newPath){
@@ -87,6 +98,7 @@ void create_kml(Map data, String path) {
   String inner_data="";
 
   data.forEach((key, val){
+    if(val.length!=0){
     inner_data+="""
   <Placemark>
         <name>$key</name>
@@ -97,6 +109,7 @@ void create_kml(Map data, String path) {
         </Point>
       </Placemark>
     """;
+    }
   });
 
   String kml_data= kml_start+inner_data+kml_end;

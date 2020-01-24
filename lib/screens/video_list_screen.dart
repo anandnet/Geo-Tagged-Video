@@ -5,6 +5,7 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 import './video_player_screen.dart';
 import "../utils/utils.dart" as utils;
 import "../utils/global_variables.dart" as gv;
+import "../widgets/bottom_sheet.dart";
 
 class VideosListScreen extends StatefulWidget {
   static const routeName = "/video-list-screen";
@@ -26,7 +27,6 @@ class _VideosListScreenState extends State<VideosListScreen> {
     final videosList =
         ModalRoute.of(context).settings.arguments as List<String>;
     return Container(
-      padding: const EdgeInsets.only(top: 10),
       child: (videosList.length == 0)
           ? Container(
               child: Center(
@@ -44,58 +44,58 @@ class _VideosListScreenState extends State<VideosListScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Divider(),
-                    InkWell(
-                      splashColor: Colors.redAccent,
+                    ListTile(
+                      contentPadding: EdgeInsets.only(right: 0, left: 15),
+                      title: Text(videoName.split(".")[0]),
                       onTap: () {
-                        getMapdata(videosList[index], "geo_location", context);
-                      },
-                      child: ListTile(
-                        contentPadding: EdgeInsets.only(right: 0, left: 15),
-                        title: Text(videoName.split(".")[0]),
-                        leading: Container(
-                          height: 140,
-                          width: 100,
-                          child: checkCache(videoName)
-                              ? Card(
-                                  margin: EdgeInsets.all(0),
-                                  elevation: 7,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(7),
-                                    child: Image.file(
-                                      File(gv.temporaryDirectory +
-                                          "/${videoName.split(".")[0]}.jpg"),
-                                      fit: BoxFit.fitWidth,
-                                    ),
+                      getMapdata(videosList[index], "geo_location",videoName.split(".")[0], context);
+                    },
+                    onLongPress:(){ openBottomSheet(context, videoName.split(".")[0],videosList[index]);},
+                      leading: Container(
+                        height: 140,
+                        width: 100,
+                        child: checkCache(videoName)
+                            ? Card(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+                                margin: EdgeInsets.all(0),
+                                elevation: 7,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(7),
+                                  child: Image.file(
+                                    File(gv.temporaryDirectory +
+                                        "/${videoName.split(".")[0]}.jpg"),
+                                    fit: BoxFit.fitWidth,
                                   ),
-                                )
-                              : FutureBuilder(
-                                  future: getThumbnail(videosList[index]),
-                                  builder: (context, snap) {
-                                    if (snap.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return Container();
-                                    }
-                                    return Card(
-                                      margin: EdgeInsets.all(0),
-                                      elevation: 7,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(7),
-                                        child: Image.file(
-                                          File(snap.data),
-                                          fit: BoxFit.fitWidth,
-                                        ),
-                                      ),
-                                    );
-                                  },
                                 ),
+                              )
+                            : FutureBuilder(
+                                future: getThumbnail(videosList[index]),
+                                builder: (context, snap) {
+                                  if (snap.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Container();
+                                  }
+                                  return Card(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+                                    margin: EdgeInsets.all(0),
+                                    elevation: 7,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(7),
+                                      child: Image.file(
+                                        File(snap.data),
+                                        fit: BoxFit.fitWidth,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.black,
                         ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            Icons.more_vert,
-                            color: Colors.black,
-                          ),
-                          onPressed: () {},
-                        ),
+                        onPressed: () {openBottomSheet(context,videoName.split(".")[0],videosList[index]);},
                       ),
                     ),
                   ],
@@ -105,9 +105,9 @@ class _VideosListScreenState extends State<VideosListScreen> {
     );
   }
 
-  getMapdata(String videoPath, String tagName, BuildContext context) async {
+  getMapdata(String videoPath, String tagName,String fileName, BuildContext context) async {
     Map<String, List<String>> x =
-        await utils.extract_metadata(videoPath, gv.tmpDirectory, tagName);
+        await utils.extract_metadata(videoPath, gv.metaDataDirectory,fileName, tagName);
     Map<String, List<double>> data = {};
     x.forEach((key, val) {
       data[key] = val.map(double.parse).toList();
@@ -134,6 +134,12 @@ class _VideosListScreenState extends State<VideosListScreen> {
         quality: 100);
     print(thumbPath);
     return thumbPath;
+  }
+  openBottomSheet(BuildContext ctx,String fileName,String filePath){
+    showModalBottomSheet(context: ctx,
+    builder:(_){
+      return BottomEditSheet(fileName,filePath);
+    },);
   }
 
   checkCache(String fileName) {

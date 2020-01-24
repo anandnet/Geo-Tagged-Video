@@ -157,7 +157,7 @@ Map<PolylineId, Polyline> polylines = {};
 void onMapCreated(GoogleMapController controller) {
      _controller.complete(controller);
      setMapPins();
-      //setPolylines();
+    // setPolylines();
   }
 
  Completer<GoogleMapController> _controller = Completer();
@@ -165,7 +165,7 @@ void onMapCreated(GoogleMapController controller) {
     Set<Polyline> _polylines = {};
     List<LatLng> polylineCoordinates = [];
     PolylinePoints polylinePoints = PolylinePoints();
-    String googleAPIKey = "AIzaSyBghv3791cknOTIcjSnmoAqokcs3JiN2L8";
+    String googleAPIKey = "";
      BitmapDescriptor sourceIcon;
     BitmapDescriptor destinationIcon;
     BitmapDescriptor locationIcon;
@@ -204,12 +204,12 @@ void setSourceAndDestinationIcons() async {
           'assets/pointer1.png');
     }
 
-/*
+
 void setPolylines() async {
   List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
       googleAPIKey,
-      22.9592961, 88.4238374,
-     22.9613034, 88.4336292//souce
+      source[0], source[1],
+     destination[0], destination[1]//souce
       );//destination
   if (result.isNotEmpty) {
     result.forEach((PointLatLng point) {
@@ -223,7 +223,7 @@ void setPolylines() async {
           points: polylineCoordinates));
     });
   }
-}*/
+}
 
 void updatePinOnMap() async {
   if(data[videoPosition]!=null){
