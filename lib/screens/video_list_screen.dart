@@ -1,6 +1,8 @@
 import 'dart:io';
-import 'package:path/path.dart';
+import 'package:geo_tagged_video/providers/video_data.dart';
+import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import './video_player_screen.dart';
 import "../utils/utils.dart" as utils;
@@ -14,6 +16,13 @@ class VideosListScreen extends StatefulWidget {
 }
 
 class _VideosListScreenState extends State<VideosListScreen> {
+  
+  @override
+  void initState() {
+    Provider.of<VideoDataProvider>(context,listen: false).fetchvideoList();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,8 +33,7 @@ class _VideosListScreenState extends State<VideosListScreen> {
   }
 
   Widget getList(BuildContext context) {
-    final videosList =
-        ModalRoute.of(context).settings.arguments as List<String>;
+    final  videosList=Provider.of<VideoDataProvider>(context).videoList;
     return Container(
       child: (videosList.length == 0)
           ? Container(
@@ -39,7 +47,7 @@ class _VideosListScreenState extends State<VideosListScreen> {
               itemExtent: 80,
               itemCount: videosList.length,
               itemBuilder: ((context, index) {
-                final videoName = basename(File(videosList[index]).path);
+                final videoName = path.basename(File(videosList[index]).path);
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
@@ -132,7 +140,6 @@ class _VideosListScreenState extends State<VideosListScreen> {
         maxHeight:
             100, // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
         quality: 100);
-    print(thumbPath);
     return thumbPath;
   }
   openBottomSheet(BuildContext ctx,String fileName,String filePath){

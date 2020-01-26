@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:path_provider/path_provider.dart';
+import "package:permission_handler/permission_handler.dart" as str;
 
 startWatch(timer,watch,updateTime) {
     watch.start();
@@ -28,17 +29,30 @@ String metaDataDirectory;
 String kmlDataDirectory;
 
 onAppStart()async{
-appDirectory = await getExternalStorageDirectory();
-temporaryDirectory=(await getTemporaryDirectory()).path;
-videoDirectory = '${appDirectory.path}/Videos';
-mapDataDirectory = '${appDirectory.path}/mapDataDirectory';
-tmpDirectory = '${appDirectory.path}/tmp';
-metaDataDirectory="$temporaryDirectory/metadata";
-kmlDataDirectory="${appDirectory.path}/KML Data";
+  await str.PermissionHandler().requestPermissions([str.PermissionGroup.storage]).then((per){
+    if(per[str.PermissionGroup.storage]==str.PermissionStatus.granted){
+        appDirectory = Directory('/storage/emulated/0/Geocam');
+        if (!appDirectory.existsSync()) 
+          appDirectory.create();
+        createDir("granted");
+    }
+    else{
+      createDir("discard");
+    }
+  });
+
 cameras = await availableCameras();
-await Directory(videoDirectory).create(recursive: true);
-await Directory(mapDataDirectory).create(recursive: true);
-await Directory(tmpDirectory).create(recursive: true);
+temporaryDirectory=(await getTemporaryDirectory()).path;
+metaDataDirectory="$temporaryDirectory/metadata";
 await Directory(metaDataDirectory).create(recursive: true);
-await Directory(kmlDataDirectory).create(recursive: true);
+}
+
+createDir(String status)async{
+  if(status=="discard"){
+    appDirectory = await getExternalStorageDirectory();
+  }
+  videoDirectory = '${appDirectory.path}/Videos';
+  kmlDataDirectory="${appDirectory.path}/KML Data";
+  await Directory(videoDirectory).create(recursive: true);
+  await Directory(kmlDataDirectory).create(recursive: true);
 }

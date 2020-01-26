@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import "package:fluttertoast/fluttertoast.dart";
@@ -11,8 +9,6 @@ import "package:location/location.dart" as loc;
 import "package:flutter_compass/flutter_compass.dart";
 
 class VideoRecorderScreen extends StatefulWidget {
-  final List<CameraDescription> cameras;
-  VideoRecorderScreen(this.cameras);
   static const routeName = "/video-recorder-screen";
 
   @override
@@ -25,6 +21,7 @@ void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 
 class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
+  final List<CameraDescription> cameras=gv.cameras;
   CameraController controller;
   Stopwatch watch = new Stopwatch();
   Timer timer;
@@ -38,14 +35,16 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   @override
   void initState() {
     super.initState();
-    controller = CameraController(widget.cameras[0], ResolutionPreset.medium);
+    controller = CameraController(cameras[0], ResolutionPreset.medium);
     controller.initialize().then((_) {
       location.requestService();
       FlutterCompass.events.listen((double direction) {
-        setState(() {
-          _direction = direction;
-        });
-      updateLocation();
+        if (mounted) {
+          setState(() {
+            _direction = direction;
+          });
+        }
+        updateLocation();
       });
       if (!mounted) {
         return;
@@ -201,7 +200,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     } else {
       selectedCameraIdx = 1;
     }
-    CameraDescription selectedCamera = widget.cameras[selectedCameraIdx];
+    CameraDescription selectedCamera = cameras[selectedCameraIdx];
     _onCameraSwitched(selectedCamera);
     setState(() {
       selectedCameraIdx = selectedCameraIdx;
@@ -301,14 +300,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
         textColor: Colors.white);
   }
 
-  Map<String, List> _mapData = {};
   String videoLog = '';
-
-  void saveJSONFile() {
-    File file = new File(mapDataFilePath);
-    file.createSync();
-    file.writeAsStringSync(json.encode(_mapData));
-  }
 
   updateTime(Timer timer) {
     if (watch.isRunning) {
@@ -320,36 +312,20 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
               //print("Chetan's Phone!!!!");
               videoLog +=
                   "$elapsedTime,${currentLocation.latitude},${currentLocation.longitude},${currentLocation.heading} ";
-
-              _mapData[elapsedTime] = [
-                currentLocation.latitude,
-                currentLocation.longitude,
-                currentLocation.altitude,
-                currentLocation.heading
-              ];
-            }
-            else{
+            } else {
               //print("MyPhone");
               videoLog +=
                   "$elapsedTime,${currentLocation.latitude},${currentLocation.longitude},$_direction ";
-
-              _mapData[elapsedTime] = [
-                currentLocation.latitude,
-                currentLocation.longitude,
-                currentLocation.altitude,
-                _direction
-              ];
-
             }
+            Fluttertoast.showToast(
+                msg:
+                    'Heading: ${currentLocation.heading}Compass:$_direction,Logitute: ${currentLocation.longitude},',
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIos: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white);
           }
-          Fluttertoast.showToast(
-              msg:
-                  'Heading: ${currentLocation.heading}Compass:$_direction,Logitute: ${currentLocation.longitude},',
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.CENTER,
-              timeInSecForIos: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white);
         });
       }
     }
@@ -364,10 +340,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     watch.stop();
     timer.cancel();
     setTime();
-    print(_mapData);
-    saveJSONFile();
     print(videoLog);
-    _mapData.clear();
   }
 
   reSetWatch() {

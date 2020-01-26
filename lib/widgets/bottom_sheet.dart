@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import "package:fluttertoast/fluttertoast.dart";
 import '../utils/utils.dart' as utils;
 import "../utils/global_variables.dart" as gv;
+import './renameDialog.dart';
+import './infoDialog.dart';
+import './delete_dialog.dart';
 class BottomEditSheet extends StatelessWidget {
   final String fileName;
   final String filePath;
@@ -14,7 +17,7 @@ class BottomEditSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 350,
+      height: 340,
       child: Column(
         children:[
           Container(
@@ -38,14 +41,35 @@ class BottomEditSheet extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.edit,color: iconColor,),
             title: Text("Rename"),
+            onTap: (){
+              Navigator.of(context).pop();
+              showDialog(
+                context: context,
+                builder: (context)=>RenameDialog(filePath,fileName)
+              );
+            },
           ),
           ListTile(
             leading: Icon(Icons.info,color: iconColor,),
             title: Text("Properties"),
+            onTap: (){
+              Navigator.of(context).pop();
+              showDialog(
+                context: context,
+                builder: (context)=>InfoDialog()
+              );
+            },
           ),
           ListTile(
             leading: Icon(Icons.delete,color: iconColor,),
             title: Text("Delete"),
+            onTap: (){
+              Navigator.of(context).pop();
+              showDialog(
+                context: context,
+                builder: (context)=>DeleteDialog(fileName,filePath)
+              );
+            },
           ),
         ],     
       ),

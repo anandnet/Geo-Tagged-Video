@@ -1,35 +1,40 @@
 import 'package:flutter/foundation.dart';
 import 'dart:io';
-import 'dart:async';
+import '../utils/global_variables.dart' as gv;
 
-class VideoData{
-  String name;
-  String datetime;
-  String duration;
-  String path;
-  VideoData({this.name,this.datetime,this.duration,this.path});
-}
+class VideoDataProvider with ChangeNotifier {
+  List<String> _vidList = [];
 
-class VideoProvider extends ChangeNotifier{
-  List<VideoData> _videos=[];
+  void fetchvideoList() {
+    _vidList=[];
+    try {
+      List<FileSystemEntity> list = Directory(gv.videoDirectory).listSync();
+      list.forEach((file) {
+        _vidList.add(file.path);
+      });
+    } catch (e) {
+    }
+  }
 
-  Future<List<FileSystemEntity>> dirContents(Directory dir) {
-  var files = <FileSystemEntity>[];
-  var completer = new Completer();
-  var lister = dir.list(recursive: false);
-  lister.listen ( 
-      (file) => files.add(file),
-      // should also register onError
-      onDone:   () => completer.complete(files)
-      );
-    print(files);
-    
-  return completer.future;
-}
+  get videoList{
+    return _vidList;
+  }
 
-}
+  deleteVideo(String filePath) async {
+    await File(filePath).delete().then((status){
+      videoList.remove(filePath);
+      print(videoList);
+      notifyListeners();
+    });
+  }
 
-void main(List<String> args) {
-  var myDir = new Directory('../screen');
-  VideoProvider().dirContents(myDir);
+  renameVideo(String filePath,String newPath) async {
+    await File(filePath).rename(newPath).then((status){
+          final int index=videoList.indexWhere((path)=>path==filePath);
+          videoList.removeAt(index);
+          videoList.insert(index,newPath);
+          print(status);
+          notifyListeners();
+        });
+  }
 }

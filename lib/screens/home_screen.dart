@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../screens/video_list_screen.dart';
 import '../screens/video_recorder_screen.dart';
@@ -8,6 +7,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    gv.onAppStart();
     return Scaffold(
       appBar: AppBar(
         title: Text("Geo Tagged Video"),
@@ -33,7 +33,7 @@ Widget screenSelectorBtn(BuildContext context,IconData icon){
            Navigator.of(context).pushNamed(VideoRecorderScreen.routeName);
         }
         else{
-          getFileList(context);
+          Navigator.of(context).pushNamed(VideosListScreen.routeName);
         }    
             },
       child: Center(
@@ -62,16 +62,5 @@ Widget screenSelectorBtn(BuildContext context,IconData icon){
         ),
       ),
     );
-  }
-  void getFileList(BuildContext context)async{
-    List<String> videosList=[];
-    try{
-    List<FileSystemEntity> list = Directory(gv.videoDirectory).listSync();
-    list.forEach((file){videosList.add(file.path);});
-    Navigator.of(context).pushNamed(VideosListScreen.routeName,arguments: videosList);
-    }
-    catch (e){
-      Navigator.of(context).pushNamed(VideosListScreen.routeName,arguments: videosList);
-    }
   }
 }

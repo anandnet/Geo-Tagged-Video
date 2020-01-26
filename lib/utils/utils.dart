@@ -3,7 +3,6 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart' show FlutterFFmpeg;
 import 'package:encrypt/encrypt.dart';
 import 'package:file_utils/file_utils.dart';
 import 'dart:io';
-import "global_variables.dart" as gv;
 
 
 ///Video encoding-decoding ............................
