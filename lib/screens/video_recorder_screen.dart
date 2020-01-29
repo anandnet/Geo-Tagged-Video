@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:intl/intl.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import "package:fluttertoast/fluttertoast.dart";
@@ -21,7 +22,7 @@ void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 
 class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
-  final List<CameraDescription> cameras=gv.cameras;
+  final List<CameraDescription> cameras = gv.cameras;
   CameraController controller;
   Stopwatch watch = new Stopwatch();
   Timer timer;
@@ -37,14 +38,17 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     super.initState();
     controller = CameraController(cameras[0], ResolutionPreset.medium);
     controller.initialize().then((_) {
-      location.requestService();
+      location.requestService().then((status){
+        if(status){
+          updateLocation();
+        }
+      });
       FlutterCompass.events.listen((double direction) {
         if (mounted) {
           setState(() {
             _direction = direction;
           });
         }
-        updateLocation();
       });
       if (!mounted) {
         return;
@@ -83,7 +87,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       body: Column(
         children: <Widget>[
           Container(
-            height: mq.size.height * .7,
+            height: mq.size.height * .69,
             child: AspectRatio(
               aspectRatio: 3 / 4,
               child: (!controller.value.isInitialized)
@@ -92,7 +96,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
             ),
           ),
           Container(
-            height: mq.size.height * .19,
+            height: mq.size.height * .18,
             child: Row(
               children: <Widget>[
                 Container(
@@ -126,6 +130,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                                 width: 20,
                                 decoration: BoxDecoration(color: Colors.white))
                             : CircleAvatar(
+                                backgroundColor: Colors.red,
                                 radius: 10,
                               ),
                       )),
@@ -145,10 +150,12 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                     ),
                   ),
                 ),
-                SizedBox(),
               ],
             ),
-          )
+          ),
+          Expanded(
+            child: Container(),
+          ),
         ],
       ),
     );
@@ -157,7 +164,6 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   ///Camera Part......
   int selectedCameraIdx;
   String videoPath;
-  String mapDataFilePath;
 
   Future<void> _onCameraSwitched(CameraDescription cameraDescription) async {
     if (controller != null) {
@@ -255,17 +261,14 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     if (controller.value.isRecordingVideo) {
       return null;
     }
-
-    final String currentTime = DateTime.now().millisecondsSinceEpoch.toString();
-    final String mapDFilePath = "${gv.mapDataDirectory}/$currentTime.json";
-    final String filePath = '${gv.videoDirectory}/$currentTime.mp4';
+    final String currentTime = DateFormat("yyyyMMddHHmmss").format(DateTime.now());
+    final String filePath = '${gv.videoDirectory}/VID$currentTime.mp4';
 
     try {
       await controller.startVideoRecording(filePath);
-      tmpVideoPath = '${gv.videoDirectory}/tmp_$currentTime.mp4';
+      tmpVideoPath = '${gv.videoDirectory}/tmp_VID$currentTime.mp4';
       videoPath = filePath;
-      mapDataFilePath = mapDFilePath;
-      filename = "$currentTime.mp4";
+      filename = "VID$currentTime.mp4";
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;

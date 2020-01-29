@@ -7,8 +7,9 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="geo_tagged_video"
-        android:icon="@mipmap/ic_launcher">
+        android:label="GeoCam"
+        android:resizeableActivity="false"
+        android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyAxgOYZGBSZ4kh2iQR2qWzJOPQDRGVueLQ"/>
         <activity

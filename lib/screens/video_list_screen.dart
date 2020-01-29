@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:geo_tagged_video/providers/video_data.dart';
+import '../providers/video_data.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,15 +31,16 @@ class _VideosListScreenState extends State<VideosListScreen> {
         videosList.map((each) => path.basename(each).split(".")[0]).toList();
     return Scaffold(
       appBar: AppBar(
+        elevation: 20,
         title: Text("Video List"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
               showSearch(
-                  context: context,
-                  delegate: DataSearch(),
-                  );
+                context: context,
+                delegate: DataSearch(),
+              );
             },
           ),
         ],
@@ -134,7 +135,6 @@ class _VideosListScreenState extends State<VideosListScreen> {
     );
   }
 
-
   Future<String> getThumbnail(String videoPath) async {
     String thumbPath = await VideoThumbnail.thumbnailFile(
         video: videoPath,
@@ -165,29 +165,47 @@ class _VideosListScreenState extends State<VideosListScreen> {
 
 class Todos {
   final String path;
+  final String fileName;
+  final bool isMapDataAvailable;
   final Map<String, List<double>> mapData;
   final List<double> source;
   final List<double> destination;
-  Todos({this.path, this.mapData, this.source, this.destination});
+  Todos(
+      {this.path,
+      this.mapData,
+      this.source,
+      this.destination,
+      this.fileName,
+      this.isMapDataAvailable});
 }
 
-
 getMapdata(String videoPath, String tagName, String fileName,
-      BuildContext context) async {
-    Map<String, List<String>> x = await utils.extract_metadata(
-        videoPath, gv.metaDataDirectory, fileName, tagName);
-    Map<String, List<double>> data = {};
+    BuildContext context) async {
+  Map<String, List<String>> x = await utils.extract_metadata(
+      videoPath, gv.metaDataDirectory, fileName, tagName);
+  print(x.length == 0);
+  Map<String, List<double>> data = {};
+  bool isMapDataAvailable;
+  List<double> destination;
+  List<double> source;
+  if (x.length == 0) {
+    isMapDataAvailable = false;
+    source = [20.5937,78.9629,0];
+    destination = [];
+  } else {
+    isMapDataAvailable = true;
     x.forEach((key, val) {
       data[key] = val.map(double.parse).toList();
     });
-    final List<double> source = data.entries.elementAt(0).value;
-    final List<double> destination =
-        data.entries.elementAt(data.length - 2).value;
-    Todos todo = Todos(
-        path: videoPath,
-        mapData: data,
-        source: source,
-        destination: destination);
-    Navigator.of(context)
-        .pushNamed(VideoPlayerScreen.routeName, arguments: todo);
+    source = data.entries.elementAt(0).value;
+    destination = data.entries.elementAt(data.length - 2).value;
   }
+  Todos todo = Todos(
+      path: videoPath,
+      mapData: data,
+      source: source,
+      destination: destination,
+      fileName: fileName,
+      isMapDataAvailable: isMapDataAvailable);
+  Navigator.of(context).pushNamed(VideoPlayerScreen.routeName, arguments: todo);
+}

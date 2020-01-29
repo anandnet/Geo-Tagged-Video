@@ -3,26 +3,27 @@ import 'dart:io';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import '../providers/video_data.dart';
+
 class RenameDialog extends StatefulWidget {
   final String filePath;
   final String fileName;
-  RenameDialog(this.filePath,this.fileName);
+  RenameDialog(this.filePath, this.fileName);
 
   @override
   _RenameDialogState createState() => _RenameDialogState();
 }
 
 class _RenameDialogState extends State<RenameDialog> {
- final  TextEditingController _textFieldController = TextEditingController();
+  final TextEditingController _textFieldController = TextEditingController();
 
- final String errorMessage1="filename not provided!";
- final String errorMessage2="filename alreay exists!";
+  final String errorMessage1 = "filename not provided!";
+  final String errorMessage2 = "filename alreay exists!";
 
- int a=0;
+  int a = 0;
 
- @override
+  @override
   void initState() {
-    _textFieldController.text=widget.fileName;
+    _textFieldController.text = widget.fileName;
     super.initState();
   }
 
@@ -42,8 +43,8 @@ class _RenameDialogState extends State<RenameDialog> {
         enableInteractiveSelection: true,
         decoration: InputDecoration(
           hintText: "New Name",
-          errorText: (a==1)?errorMessage1:(a==2)? errorMessage2: null,
-          ),
+          errorText: (a == 1) ? errorMessage1 : (a == 2) ? errorMessage2 : null,
+        ),
       ),
       actions: <Widget>[
         FlatButton(
@@ -55,26 +56,25 @@ class _RenameDialogState extends State<RenameDialog> {
         FlatButton(
           child: Text('OK'),
           onPressed: () {
-            if(_textFieldController.text!="")
-            {
-              print(_textFieldController.text);
-              final nameSplit=widget.filePath.split("/");
-              final newPath=widget.filePath.replaceFirst(nameSplit[nameSplit.length-1], "${_textFieldController.text}.mp4");
-              final isExist = FileSystemEntity.typeSync(newPath)!=FileSystemEntityType.notFound;
-              if(!isExist)
-              {  
+            if (_textFieldController.text != "") {
+              final nameSplit = widget.filePath.split("/");
+              final newPath = widget.filePath.replaceFirst(
+                  nameSplit[nameSplit.length - 1],
+                  "${_textFieldController.text}.mp4");
+              final isExist = FileSystemEntity.typeSync(newPath) !=
+                  FileSystemEntityType.notFound;
+              if (!isExist) {
                 Navigator.of(context).pop();
-                Provider.of<VideoDataProvider>(context,listen: false).renameVideo(widget.filePath, newPath);
-                }
-              else{
+                Provider.of<VideoDataProvider>(context, listen: false)
+                    .renameVideo(widget.filePath, newPath);
+              } else {
                 setState(() {
-                  a=2;
+                  a = 2;
                 });
               }
-            }
-            else{
+            } else {
               setState(() {
-                a=1;
+                a = 1;
               });
             }
           },

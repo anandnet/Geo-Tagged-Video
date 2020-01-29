@@ -6,35 +6,32 @@ class VideoDataProvider with ChangeNotifier {
   List<String> _vidList = [];
 
   void fetchvideoList() {
-    _vidList=[];
+    _vidList = [];
     try {
       List<FileSystemEntity> list = Directory(gv.videoDirectory).listSync();
       list.forEach((file) {
         _vidList.add(file.path);
       });
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
-  get videoList{
+  get videoList {
     return _vidList;
   }
 
   deleteVideo(String filePath) async {
-    await File(filePath).delete().then((status){
+    await File(filePath).delete().then((status) {
       videoList.remove(filePath);
-      print(videoList);
       notifyListeners();
     });
   }
 
-  renameVideo(String filePath,String newPath) async {
-    await File(filePath).rename(newPath).then((status){
-          final int index=videoList.indexWhere((path)=>path==filePath);
-          videoList.removeAt(index);
-          videoList.insert(index,newPath);
-          print(status);
-          notifyListeners();
-        });
+  renameVideo(String filePath, String newPath) async {
+    await File(filePath).rename(newPath).then((status) {
+      final int index = videoList.indexWhere((path) => path == filePath);
+      videoList.removeAt(index);
+      videoList.insert(index, newPath);
+      notifyListeners();
+    });
   }
 }
