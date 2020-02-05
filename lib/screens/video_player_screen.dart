@@ -28,7 +28,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   bool isInit = true;
   String fileName;
-
+  int vidOrientation=0;
   @override
   void didChangeDependencies() {
     if (isInit) {
@@ -37,12 +37,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       data = a.mapData;
       fileName = a.fileName;
       source = a.source;
+      vidOrientation=a.vidOrientation;
       isMapDataAvailable = a.isMapDataAvailable;
       destination = a.destination;
       _videoPlayerController = VideoPlayerController.file(myFile);
       _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController,
-        aspectRatio: 3 / 4,
+        aspectRatio: vidOrientation==0 ? 3 / 2 : 3/4,
         autoPlay: true,
         looping: false,
         // Try playing around with some of these other options:
@@ -80,7 +81,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    MediaQueryData mq = MediaQuery.of(context);
     CameraPosition initialCameraPosition;
     if (!isMapDataAvailable) {
       initialCameraPosition = CameraPosition(
@@ -100,19 +100,38 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 LatLng(data[videoPosition][0], data[videoPosition][1]), //change
             zoom: cameraZoom,
             tilt: cameraTilt,
-            bearing: data[videoPosition][2]);
+            bearing: cameraBearing);
       }
     }
-    return Scaffold(
+      return Scaffold(
       appBar: AppBar(
         title: Text(fileName),
       ),
       body: Column(
         children: <Widget>[
           Container(
-            height: mq.size.height * .4,
-            child: Chewie(
-              controller: _chewieController,
+            height: vidOrientation==0 ? 240 :300,
+            child: Stack(
+              children: <Widget>[
+                Chewie(
+                  controller: _chewieController,
+                ),
+                Container(
+                  padding:const EdgeInsets.only(left: 10,top:10),
+                  height: 40,
+                  width: 120,
+                  color: Colors.black12,
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    //"hello",
+                    (data[videoPosition]!=null&&videoPosition!='') ?  "Speed: "+data[videoPosition][3].toString()+" m/s":"Speed: 0.00 m/s",
+                    style: TextStyle(
+                      fontWeight:FontWeight.bold,
+                      color: Colors.white
+                      ),
+                    ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -145,9 +164,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           var milliSeconds = _chewieController
               .videoPlayerController.value.position.inMilliseconds;
           videoPosition = gv.transformMilliSeconds(milliSeconds);
-          //print("$videoPosition: ${data[videoPosition]}");
+          //("$videoPosition: ${data[videoPosition]}");
           if (isMapDataAvailable) {
-            updatePinOnMap();
+            try{
+              if(data[videoPosition] != null){
+                updatePinOnMap();
+              }
+            }catch(e){
+
+            }
+            
           }
         });
       }
@@ -158,9 +184,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   bool isMapDataAvailable;
   List<double> source = [];
   List<double> destination = [];
-  final double cameraZoom = 15;
+  final double cameraZoom = 16;
   final double cameraTilt = 3;
-  final double cameraBearing = 30;
+  final double cameraBearing = 0;
   Map<String, List<double>> data = {};
   Map<PolylineId, Polyline> polylines = {};
 
@@ -208,7 +234,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     sourceIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5), 'assets/marker.png');
     locationIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: 2.5), 'assets/pointer1.png');
+        ImageConfiguration(devicePixelRatio: 2.5), 'assets/pointer.png');
   }
 
   void setPolylines() async {
@@ -234,11 +260,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   void updatePinOnMap() async {
-    if (data[videoPosition] != null) {
       CameraPosition cPosition = CameraPosition(
         zoom: cameraZoom,
         tilt: cameraTilt,
-        bearing: data[videoPosition][2],
+        bearing: cameraBearing,
         target: LatLng(data[videoPosition][0], data[videoPosition][1]), //chanfr
       );
       final GoogleMapController controller = await _controller.future;
@@ -257,6 +282,5 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           position: pinPosition, // updated position
           icon: locationIcon,
           rotation: data[videoPosition] != null ? data[videoPosition][2] : 0));
-    }
   }
 }

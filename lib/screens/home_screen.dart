@@ -8,23 +8,49 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MediaQueryData mq = MediaQuery.of(context);
     gv.onAppStart();
     return Scaffold(
         appBar: AppBar(
-          elevation: 20,
-          title: Text(
-            "GeoCam",
-            style: TextStyle(fontSize: 25),
-          ),
+          elevation: 0,
         ),
         body: Container(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            screenSelectorBtn(context, Icons.videocam),
-            screenSelectorBtn(context, Icons.music_video),
-          ],
-        )));
+          color: Theme.of(context).primaryColor,
+          child: Column(
+            children: <Widget>[
+              Container(
+                alignment: Alignment.topLeft,
+                padding: const EdgeInsets.only(left: 20),
+                height: mq.size.height * .095,
+                child: Text(
+                  "GeoCam",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 35,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                    // height: mq.size.height*.796,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(20),
+                            topLeft: Radius.circular(60),
+                            bottomRight: Radius.circular(20),
+                            topRight: Radius.circular(0))),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        screenSelectorBtn(context, Icons.videocam),
+                        screenSelectorBtn(context, Icons.music_video),
+                      ],
+                    )),
+              ),
+            ],
+          ),
+        ));
   }
 
 //Screen Selecter Button
@@ -40,7 +66,7 @@ class HomeScreen extends StatelessWidget {
       },
       child: Center(
         child: Container(
-          height: mq.size.height * .38,
+          height: mq.size.height * .3,
           width: mq.size.width * .8,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
@@ -51,7 +77,7 @@ class HomeScreen extends StatelessWidget {
             children: <Widget>[
               Icon(
                 icon,
-                size: 200,
+                size: 150,
                 color: Colors.white,
               ),
               Text(

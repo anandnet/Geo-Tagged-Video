@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import "package:flutter/material.dart";
 import 'package:esys_flutter_share/esys_flutter_share.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_video_info/flutter_video_info.dart';
 import "package:fluttertoast/fluttertoast.dart";
 import '../utils/utils.dart' as utils;
 import "../utils/global_variables.dart" as gv;
@@ -18,6 +18,7 @@ class BottomEditSheet extends StatelessWidget {
   //final Directory dir=Directory(filePath);
   @override
   Widget build(BuildContext context) {
+    medinfo(filePath,fileName);
     return Container(
       height: 340,
       child: Column(
@@ -72,7 +73,7 @@ class BottomEditSheet extends StatelessWidget {
             title: Text("Properties"),
             onTap: () {
               Navigator.of(context).pop();
-              showDialog(context: context, builder: (context) => InfoDialog());
+              showDialog(context: context, builder: (context) => InfoDialog(filePath, fileName));
             },
           ),
           ListTile(
@@ -124,3 +125,16 @@ class BottomEditSheet extends StatelessWidget {
     });
   }
 }
+Map<String,dynamic> mediaInfo={};
+medinfo(String videoPath,String fileName)async{
+  final _videoInfo = FlutterVideoInfo();
+  _videoInfo.getVideoInfo(videoPath).then((info){
+    mediaInfo={"filename":fileName,
+                "duration":info.duration,
+                "size":info.filesize,
+                "height":info.height,
+                "width":info.width,
+              "path":videoPath
+    };
+  });
+ }

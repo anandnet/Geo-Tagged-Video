@@ -89,7 +89,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
           Container(
             height: mq.size.height * .69,
             child: AspectRatio(
-              aspectRatio: 3 / 4,
+              aspectRatio: 16/9,
               child: (!controller.value.isInitialized)
                   ? new Container()
                   : CameraPreview(controller),
@@ -314,15 +314,15 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
             if (_direction == null) {
               //print("Chetan's Phone!!!!");
               videoLog +=
-                  "$elapsedTime,${currentLocation.latitude},${currentLocation.longitude},${currentLocation.heading} ";
+                  "$elapsedTime,${currentLocation.latitude},${currentLocation.longitude},${currentLocation.heading},${currentLocation.speed.toStringAsFixed(2)} ";
             } else {
               //print("MyPhone");
               videoLog +=
-                  "$elapsedTime,${currentLocation.latitude},${currentLocation.longitude},$_direction ";
+                  "$elapsedTime,${currentLocation.latitude},${currentLocation.longitude},$_direction,${currentLocation.speed.toStringAsFixed(2)} ";
             }
             Fluttertoast.showToast(
                 msg:
-                    'Heading: ${currentLocation.heading}Compass:$_direction,Logitute: ${currentLocation.longitude},',
+                    'Heading: Speed:${currentLocation.speed.toStringAsFixed(2)}m/s Compass:$_direction,Logitute: ${currentLocation.longitude},,',
                 toastLength: Toast.LENGTH_LONG,
                 gravity: ToastGravity.CENTER,
                 timeInSecForIos: 1,

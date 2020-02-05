@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_video_info/flutter_video_info.dart';
 import '../providers/video_data.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
@@ -25,14 +26,15 @@ class _VideosListScreenState extends State<VideosListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final MediaQueryData mq = MediaQuery.of(context);
     final List<String> videosList =
         Provider.of<VideoDataProvider>(context).videoList;
     final List<String> videosName =
         videosList.map((each) => path.basename(each).split(".")[0]).toList();
     return Scaffold(
       appBar: AppBar(
-        elevation: 20,
-        title: Text("Video List"),
+        elevation: 00,
+        //title: Text("Video List"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
@@ -46,91 +48,121 @@ class _VideosListScreenState extends State<VideosListScreen> {
         ],
       ),
       body: Container(
-        child: (videosList.length == 0)
-            ? Container(
-                child: Center(
-                    child: Text(
-                  "No Files",
-                  style: TextStyle(fontSize: 25),
-                )),
-              )
-            : ListView.builder(
-                itemExtent: 80,
-                itemCount: videosList.length,
-                itemBuilder: ((context, index) {
-                  //final videoName = path.basename(File(videosList[index]).path);
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Divider(),
-                      ListTile(
-                        contentPadding: EdgeInsets.only(right: 0, left: 15),
-                        title: Text(videosName[index]),
-                        onTap: () {
-                          getMapdata(videosList[index], "geo_location",
-                              videosName[index], context);
-                        },
-                        onLongPress: () {
-                          openBottomSheet(
-                              context, videosName[index], videosList[index]);
-                        },
-                        leading: Container(
-                          height: 140,
-                          width: 100,
-                          child: checkCache(videosName[index])
-                              ? Card(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(7)),
-                                  margin: EdgeInsets.all(0),
-                                  elevation: 7,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(7),
-                                    child: Image.file(
-                                      File(gv.temporaryDirectory +
-                                          "/${videosName[index]}.jpg"),
-                                      fit: BoxFit.fitWidth,
-                                    ),
-                                  ),
-                                )
-                              : FutureBuilder(
-                                  future: getThumbnail(videosList[index]),
-                                  builder: (context, snap) {
-                                    if (snap.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return Container();
-                                    }
-                                    return Card(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(7)),
-                                      margin: EdgeInsets.all(0),
-                                      elevation: 7,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(7),
-                                        child: Image.file(
-                                          File(snap.data),
-                                          fit: BoxFit.fitWidth,
+        color: Theme.of(context).primaryColor,
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: mq.size.height * .095,
+              alignment: Alignment.topLeft,
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(
+                "Videos List",
+                style: TextStyle(color: Colors.white, fontSize: 30),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.only(top: 20),
+                height: mq.size.height * .79,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.only(topLeft: Radius.circular(60))),
+                child: (videosList.length == 0)
+                    ? Container(
+                        child: Center(
+                            child: Text(
+                          "No Files",
+                          style: TextStyle(fontSize: 25),
+                        )),
+                      )
+                    : ListView.builder(
+                      physics: ScrollPhysics(parent: BouncingScrollPhysics()),
+                        itemExtent: 80,
+                        itemCount: videosList.length,
+                        itemBuilder: ((context, index) {
+                          //final videoName = path.basename(File(videosList[index]).path);
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Divider(),
+                              ListTile(
+                                contentPadding:
+                                    EdgeInsets.only(right: 0, left: 15),
+                                title: Text(videosName[index]),
+                                onTap: () {
+                                  getMapdata(videosList[index], "geo_location",
+                                      videosName[index], context);
+                                },
+                                onLongPress: () {
+                                  openBottomSheet(context, videosName[index],
+                                      videosList[index]);
+                                },
+                                leading: Container(
+                                  height: 140,
+                                  width: 100,
+                                  child: checkCache(videosName[index])
+                                      ? Card(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(7)),
+                                          margin: EdgeInsets.all(0),
+                                          elevation: 7,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(7),
+                                            child: Image.file(
+                                              File(gv.temporaryDirectory +
+                                                  "/${videosName[index]}.jpg"),
+                                              fit: BoxFit.fitWidth,
+                                            ),
+                                          ),
+                                        )
+                                      : FutureBuilder(
+                                          future:
+                                              getThumbnail(videosList[index]),
+                                          builder: (context, snap) {
+                                            if (snap.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return Container();
+                                            }
+                                            return Card(
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(7)),
+                                              margin: EdgeInsets.all(0),
+                                              elevation: 7,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(7),
+                                                child: Image.file(
+                                                  File(snap.data),
+                                                  fit: BoxFit.fitWidth,
+                                                ),
+                                              ),
+                                            );
+                                          },
                                         ),
-                                      ),
-                                    );
+                                ),
+                                trailing: IconButton(
+                                  icon: Icon(
+                                    Icons.more_vert,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () {
+                                    openBottomSheet(context, videosName[index],
+                                        videosList[index]);
                                   },
                                 ),
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            Icons.more_vert,
-                            color: Colors.black,
-                          ),
-                          onPressed: () {
-                            openBottomSheet(
-                                context, videosName[index], videosList[index]);
-                          },
-                        ),
+                              ),
+                            ],
+                          );
+                        }),
                       ),
-                    ],
-                  );
-                }),
               ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -170,14 +202,17 @@ class Todos {
   final Map<String, List<double>> mapData;
   final List<double> source;
   final List<double> destination;
+  final int vidOrientation;
   Todos(
       {this.path,
+      this.vidOrientation,
       this.mapData,
       this.source,
       this.destination,
       this.fileName,
       this.isMapDataAvailable});
 }
+
 
 getMapdata(String videoPath, String tagName, String fileName,
     BuildContext context) async {
@@ -190,7 +225,7 @@ getMapdata(String videoPath, String tagName, String fileName,
   List<double> source;
   if (x.length == 0) {
     isMapDataAvailable = false;
-    source = [20.5937,78.9629,0];
+    source = [20.5937, 78.9629, 0];
     destination = [];
   } else {
     isMapDataAvailable = true;
@@ -200,12 +235,17 @@ getMapdata(String videoPath, String tagName, String fileName,
     source = data.entries.elementAt(0).value;
     destination = data.entries.elementAt(data.length - 2).value;
   }
-  Todos todo = Todos(
+  final _videoInfo = FlutterVideoInfo();
+    _videoInfo.getVideoInfo(videoPath).then((val){
+     Todos todo = Todos(
       path: videoPath,
       mapData: data,
       source: source,
+      vidOrientation: val.orientation,
       destination: destination,
       fileName: fileName,
+
       isMapDataAvailable: isMapDataAvailable);
   Navigator.of(context).pushNamed(VideoPlayerScreen.routeName, arguments: todo);
+   });
 }
