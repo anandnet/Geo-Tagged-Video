@@ -38,7 +38,7 @@ dependencies:
   flutter_compass: ^0.3.4
   esys_flutter_share: ^1.0.2
   intl: ^0.16.1
-  flutter_video_info: ^0.0.1
+  flutter_video_info: ^0.1.0
 
 
 
@@ -69,11 +69,8 @@ flutter:
   assets:
     - assets/source.png
     - assets/destination.png
-    - assets/marker.png
     - assets/pointer.png
-    - assets/pointer1.png
     - assets/appicon.png
-    - assets/appicon1.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

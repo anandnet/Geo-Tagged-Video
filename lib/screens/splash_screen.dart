@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
             children: <Widget>[
               Center(
                 child: Image.asset(
-                  "assets/appicon1.png",
+                  "assets/appicon.png",
                   width: mq.size.width / 2 - 10,
                   height: mq.size.height * .75,
                 ),

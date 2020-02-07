@@ -227,12 +227,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   void setSourceAndDestinationIcons() async {
-    sourceIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: 2.5), 'assets/marker.png');
     destinationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5), 'assets/destination.png');
     sourceIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: 2.5), 'assets/marker.png');
+        ImageConfiguration(devicePixelRatio: 2.5), 'assets/source.png');
     locationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5), 'assets/pointer.png');
   }
@@ -270,13 +268,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       controller.animateCamera(CameraUpdate.newCameraPosition(cPosition));
       var pinPosition =
           LatLng(data[videoPosition][0], data[videoPosition][1]); //change
-      _markers.removeWhere((m) => m.markerId.toString() == 'sourcePin');
       _markers.removeWhere((m) => m.markerId.toString() == 'directionPin');
-      _markers.add(Marker(
-        markerId: MarkerId('sourcePin'),
-        position: pinPosition, // updated position
-        icon: sourceIcon,
-      ));
       _markers.add(Marker(
           markerId: MarkerId('directionPin'),
           position: pinPosition, // updated position

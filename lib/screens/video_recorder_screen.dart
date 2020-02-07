@@ -30,7 +30,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   var geolocator = Geolocator();
   var location = loc.Location();
   Position currentLocation;
-  String elapsedTime = '';
+  String elapsedTime = '00:00';
   double _direction;
 
   @override
@@ -38,8 +38,8 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     super.initState();
     controller = CameraController(cameras[0], ResolutionPreset.medium);
     controller.initialize().then((_) {
-      location.requestService().then((status){
-        if(status){
+      location.requestService().then((status) {
+        if (status) {
           updateLocation();
         }
       });
@@ -84,77 +84,93 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       appBar: AppBar(
         title: Text("Video Recorder"),
       ),
-      body: Column(
+      body: Stack(
         children: <Widget>[
           Container(
-            height: mq.size.height * .69,
+            height: mq.size.height,
             child: AspectRatio(
-              aspectRatio: 16/9,
+              aspectRatio: 16 / 9,
               child: (!controller.value.isInitialized)
                   ? new Container()
                   : CameraPreview(controller),
             ),
           ),
           Container(
-            height: mq.size.height * .18,
-            child: Row(
-              children: <Widget>[
-                Container(
-                    alignment: Alignment.center,
-                    width: mq.size.width * .4,
-                    child: Text(elapsedTime)),
-                Container(
-                  width: mq.size.width * .2,
-                  alignment: Alignment.center,
-                  child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (recording) {
-                            _onStopButtonPressed();
-                            stopWatch();
-                            reSetWatch();
-                            elapsedTime = "00:00";
-                          } else {
-                            _onRecordButtonPressed();
-                            startWatch();
-                          }
-                          recording = !recording;
-                        });
-                      },
-                      child: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.black,
-                        child: recording
-                            ? Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(color: Colors.white))
-                            : CircleAvatar(
-                                backgroundColor: Colors.red,
-                                radius: 10,
-                              ),
-                      )),
-                ),
-                Container(
-                  width: mq.size.width * .4,
-                  child: GestureDetector(
-                    child: CircleAvatar(
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.switch_camera,
+            alignment: Alignment.bottomCenter,
+            color: Colors.transparent,
+            child: Container(
+              height: 200,
+              width: mq.size.width,
+              padding: const EdgeInsets.only(bottom:20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Container(
+                    child: recording ? Chip(
+                      avatar: CircleAvatar(radius: 8,backgroundColor: Colors.red,),
+                      label: Text(elapsedTime)):Container(height:50,),
+                  ),
+                  Container(
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                            alignment: Alignment.center,
+                            width: mq.size.width * .4,
+                            child: Text("")),
+                        Container(
+                          width: mq.size.width * .2,
+                          alignment: Alignment.center,
+                          child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (recording) {
+                                    _onStopButtonPressed();
+                                    stopWatch();
+                                    reSetWatch();
+                                    elapsedTime = "00:00";
+                                  } else {
+                                    _onRecordButtonPressed();
+                                    startWatch();
+                                  }
+                                  recording = !recording;
+                                });
+                              },
+                              child: CircleAvatar(
+                                radius: 30,
+                                backgroundColor: Colors.black,
+                                child: recording
+                                    ? Container(
+                                        height: 20,
+                                        width: 20,
+                                        decoration:
+                                            BoxDecoration(color: Colors.white))
+                                    : CircleAvatar(
+                                        backgroundColor: Colors.red,
+                                        radius: 10,
+                                      ),
+                              )),
                         ),
-                        onPressed: () {
-                          _onSwitchCamera();
-                        },
-                      ),
+                        Container(
+                          width: mq.size.width * .4,
+                          child: recording ? Container():GestureDetector(
+                            child: CircleAvatar(
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.switch_camera,
+                                ),
+                                onPressed: () {
+                                  _onSwitchCamera();
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Container(),
           ),
         ],
       ),
@@ -261,7 +277,8 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     if (controller.value.isRecordingVideo) {
       return null;
     }
-    final String currentTime = DateFormat("yyyyMMddHHmmss").format(DateTime.now());
+    final String currentTime =
+        DateFormat("yyyyMMddHHmmss").format(DateTime.now());
     final String filePath = '${gv.videoDirectory}/VID$currentTime.mp4';
 
     try {
